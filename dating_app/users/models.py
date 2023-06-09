@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 class CustomUserManager(UserManager):
     '''Класс для обработки операций с моделью User. Данный класс
     переопределяет методы создания пользователя и суперпользователя:
-    были убраны ссылки на username, так как из модели мы это поле 
+    были убраны ссылки на username, так как из модели мы это поле
     убрали.'''
 
     def _create_user(self, email, password, **extra_fields):
@@ -47,7 +47,7 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name',
-                       'gender']
+                       'gender', 'avatar']
     objects = CustomUserManager()
 
     class Gender(models.TextChoices):

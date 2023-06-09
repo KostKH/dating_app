@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import Group, UserAdmin
 from django.utils.translation import gettext_lazy as _
-from users.models import User
+
+User = get_user_model()
 
 
 class MyUserAdmin(UserAdmin):
@@ -9,7 +11,8 @@ class MyUserAdmin(UserAdmin):
     информации о пользователе.'''
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'avatar')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name',
+                                         'avatar')}),
         (
             _('Permissions'),
             {
@@ -29,7 +32,7 @@ class MyUserAdmin(UserAdmin):
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email', 'first_name', 'last_name', 
+                'fields': ('email', 'first_name', 'last_name',
                            'password1', 'password2'),
             },
         ),
