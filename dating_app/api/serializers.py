@@ -9,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
+from .utils import watermark
+
 User = get_user_model()
 
 
@@ -16,9 +18,9 @@ class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
 
         if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            _, imgstr = data.split(';base64,')
+            marked_image = watermark(base64.b64decode(imgstr)).getvalue()
+            data = ContentFile(marked_image, name='temp.' + 'png')
         return super().to_internal_value(data)
 
 
@@ -42,7 +44,7 @@ class UserCreateMixin:
         try:
             user = self.perform_create(validated_data)
         except IntegrityError:
-            self.fail("cannot_create_user")
+            self.fail('cannot_create_user')
         return user
 
     def perform_create(self, validated_data):
@@ -52,18 +54,18 @@ class UserCreateMixin:
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        style={"input_type": "password"},
+        style={'input_type': 'password'},
         write_only=True)
     avatar = Base64ImageField()
 
     default_error_messages = {
-        "cannot_create_user": "Не удалось создать пользователя"}
+        'cannot_create_user': 'Не удалось создать пользователя'}
 
     def create(self, validated_data):
         try:
             user = self.perform_create(validated_data)
         except IntegrityError:
-            self.fail("cannot_create_user")
+            self.fail('cannot_create_user')
 
         return user
 
@@ -80,35 +82,35 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'last_name',
             'gender',
             'avatar',
-            "password",
+            'password',
         )
 
     def validate(self, data):
         user = User(**data)
-        password = data.get("password")
+        password = data.get('password')
         try:
             validate_password(password, user)
         except django_exceptions.ValidationError as e:
             serializer_error = serializers.as_serializer_error(e)
             raise serializers.ValidationError(
-                {"password": serializer_error[
+                {'password': serializer_error[
                     api_settings.NON_FIELD_ERRORS_KEY]})
         return data
 
 
 class CustomAuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(
-        label=_("Email"),
+        label=_('Email'),
         write_only=True
     )
     password = serializers.CharField(
-        label=_("Password"),
+        label=_('Password'),
         style={'input_type': 'password'},
         trim_whitespace=False,
         write_only=True
     )
     token = serializers.CharField(
-        label=_("Token"),
+        label=_('Token'),
         read_only=True
     )
 
