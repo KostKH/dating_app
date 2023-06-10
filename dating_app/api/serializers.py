@@ -9,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
+from match.models import Match
+
 from .utils import watermark
 
 User = get_user_model()
@@ -131,3 +133,16 @@ class CustomAuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class MatchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Match
+        fields = ('liker', 'liking')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Match.objects.all(),
+                fields=('liker', 'liking')
+            )
+        ]

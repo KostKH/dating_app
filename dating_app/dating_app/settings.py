@@ -21,9 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
+    'match.apps.MatchConfig',
 ]
 
 MIDDLEWARE = [
@@ -111,3 +111,4 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
