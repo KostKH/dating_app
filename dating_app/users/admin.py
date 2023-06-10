@@ -12,7 +12,7 @@ class MyUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name',
-                                         'avatar')}),
+                                         'gender', 'avatar')}),
         (
             _('Permissions'),
             {
@@ -32,7 +32,7 @@ class MyUserAdmin(UserAdmin):
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email', 'first_name', 'last_name',
+                'fields': ('email', 'first_name', 'last_name', 'gender',
                            'password1', 'password2'),
             },
         ),
@@ -48,7 +48,7 @@ class MyUserAdmin(UserAdmin):
     )
     list_filter = ('email',)
     ordering = ('email',)
-    search_fields = ('first_name', 'last_name', 'email')
+    search_fields = ('first_name', 'last_name', 'email', 'gender')
 
 
 admin.site.register(User, MyUserAdmin)

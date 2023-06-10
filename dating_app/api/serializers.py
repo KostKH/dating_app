@@ -17,6 +17,7 @@ User = get_user_model()
 
 
 class Base64ImageField(serializers.ImageField):
+    """Класс для сериализации поля изображения."""
     def to_internal_value(self, data):
 
         if isinstance(data, str) and data.startswith('data:image'):
@@ -27,6 +28,8 @@ class Base64ImageField(serializers.ImageField):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Класс для сериализации модели пользователя - при запросах
+    на чтение данных."""
 
     class Meta:
         model = User
@@ -55,6 +58,9 @@ class UserCreateMixin:
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    """Класс для сериализации модели пользователя - при запросах
+    на создание пользователя."""
+
     password = serializers.CharField(
         style={'input_type': 'password'},
         write_only=True)
@@ -101,6 +107,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class CustomAuthTokenSerializer(serializers.Serializer):
+    """Класс для сериализации модели токена."""
+
     email = serializers.EmailField(
         label=_('Email'),
         write_only=True
@@ -136,6 +144,7 @@ class CustomAuthTokenSerializer(serializers.Serializer):
 
 
 class MatchSerializer(serializers.ModelSerializer):
+    """Класс для сериализации модели Мэтча (симпатий) пользователей."""
 
     class Meta:
         model = Match

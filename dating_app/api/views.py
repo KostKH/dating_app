@@ -1,20 +1,26 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from match.models import Match
 from match.tasks import match_notification
 
 from .serializers import (CustomAuthTokenSerializer, MatchSerializer,
-                          UserCreateSerializer)
+                          UserCreateSerializer, UserSerializer)
 
 User = get_user_model()
 
 
 class UserCreateView(APIView):
-    permission_classes = (permissions.AllowAny,)
+    """Класс для обработки эндпойнта на создание пользователя."""
+
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
@@ -27,10 +33,13 @@ class UserCreateView(APIView):
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
+    """Класс для обработки эндпойнта создания токена авторизации."""
+
     serializer_class = CustomAuthTokenSerializer
 
 
 class MatchView(APIView):
+    """Класс для обработки эндпойнта на создание мэтча пользователей."""
 
     def post(self, request, id=None):
         data = {
@@ -59,3 +68,13 @@ class MatchView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserListViewSet(ListModelMixin, GenericViewSet):
+    """Класс для обработки эндпойнта на вывод списка пользователей."""
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('gender', 'first_name', 'last_name')
+    permission_classes = (AllowAny,)
