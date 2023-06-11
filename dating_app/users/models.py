@@ -1,15 +1,17 @@
 from django.apps import apps
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import (CharField, CheckConstraint, EmailField,
+                              FloatField, ImageField, Q, TextChoices)
 from django.utils.translation import gettext_lazy as _
 
 
 class CustomUserManager(UserManager):
-    '''Класс для обработки операций с моделью User. Данный класс
+    """Класс для обработки операций с моделью User. Данный класс
     переопределяет методы создания пользователя и суперпользователя:
     были убраны ссылки на username, так как из модели мы это поле
-    убрали.'''
+    убрали."""
 
     def _create_user(self, email, password, **extra_fields):
         if not email:
@@ -42,38 +44,77 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractUser):
-    '''Класс User создает БД SQL для хранения
-    информации о пользователях.'''
+    """Класс User создает БД SQL для хранения
+    информации о пользователях."""
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name',
                        'gender', 'avatar']
     objects = CustomUserManager()
 
-    class Gender(models.TextChoices):
+    class Gender(TextChoices):
         MALE = 'М', 'Мужской'
         FEMALE = 'Ж', 'Женский'
     username = None
-    email = models.EmailField(_('email address'), blank=False, unique=True)
-    first_name = models.CharField(_('first name'), max_length=30, blank=False)
-    last_name = models.CharField(_('last name'), max_length=150, blank=False)
-    avatar = models.ImageField(
+    email = EmailField(_('email address'), blank=False, unique=True)
+    first_name = CharField(_('first name'), max_length=30, blank=False)
+    last_name = CharField(_('last name'), max_length=150, blank=False)
+    avatar = ImageField(
         upload_to='media/',
         verbose_name='Аватар',
         help_text='Загрузите вашу фотографию',
         blank=False)
 
-    gender = models.CharField(
+    gender = CharField(
         max_length=1,
         choices=Gender.choices,
         blank=False,
+        null=False,
         verbose_name='Пол',
         help_text='Укажите ваш пол')
+
+    latitude = FloatField(
+        blank=False,
+        null=False,
+        default=54.9827385,
+        verbose_name='Широта',
+        help_text='Укажите широту вашего местоположения',
+        validators=[
+            MinValueValidator(
+                -90.0,
+                message='Должно быть значение от -90.000000 до 90.000000'),
+            MaxValueValidator(
+                90.0,
+                message='Должно быть значение от -90.000000 до 90.000000')
+        ])
+
+    longitude = FloatField(
+        blank=False,
+        null=False,
+        default=82.8977945,
+        verbose_name='Долгота',
+        help_text='Укажите долготу вашего местоположения',
+        validators=[
+            MinValueValidator(
+                -180.0,
+                message='Должно быть значение от -180.00000 до 180.000000'),
+            MaxValueValidator(
+                180.0,
+                message='Должно быть значение от -180.000000 до 180.000000')
+        ])
 
     class Meta:
         ordering = ['-id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        constraints = [
+            CheckConstraint(
+                check=Q(latitude__gte=-90.0) & Q(latitude__lte=90.0),
+                name='laptitude_between_minus90_90'),
+            CheckConstraint(
+                check=Q(longitude__gte=-180.0) & Q(longitude__lte=180.0),
+                name='longitude_between_minus180_180'),
+        ]
 
     def __str__(self):
         return self.email

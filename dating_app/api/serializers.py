@@ -40,6 +40,8 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'gender',
             'avatar',
+            'latitude',
+            'longitude',
         )
         read_only_fields = ('email',)
 
@@ -91,6 +93,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'gender',
             'avatar',
             'password',
+            'latitude',
+            'longitude',
         )
 
     def validate(self, data):

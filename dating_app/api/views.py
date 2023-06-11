@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from match.models import Match
 from match.tasks import match_notification
 
+from .filters import UserListFilter
 from .serializers import (CustomAuthTokenSerializer, MatchSerializer,
                           UserCreateSerializer, UserSerializer)
 
@@ -76,5 +77,4 @@ class UserListViewSet(ListModelMixin, GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('gender', 'first_name', 'last_name')
-    permission_classes = (AllowAny,)
+    filterset_class = UserListFilter

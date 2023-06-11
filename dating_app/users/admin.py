@@ -11,8 +11,19 @@ class MyUserAdmin(UserAdmin):
     информации о пользователе.'''
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name',
-                                         'gender', 'avatar')}),
+        (
+            _('Personal info'),
+            {
+                'fields': (
+                    'first_name',
+                    'last_name',
+                    'gender',
+                    'avatar',
+                    'latitude',
+                    'longitude',
+                )
+            }
+        ),
         (
             _('Permissions'),
             {
@@ -33,7 +44,8 @@ class MyUserAdmin(UserAdmin):
             {
                 'classes': ('wide',),
                 'fields': ('email', 'first_name', 'last_name', 'gender',
-                           'password1', 'password2'),
+                           'password1', 'password2', 'latitude',
+                           'longitude',),
             },
         ),
     )
@@ -44,7 +56,9 @@ class MyUserAdmin(UserAdmin):
         'last_name',
         'avatar',
         'gender',
-        'is_staff'
+        'latitude',
+        'longitude',
+        'is_staff',
     )
     list_filter = ('email',)
     ordering = ('email',)
