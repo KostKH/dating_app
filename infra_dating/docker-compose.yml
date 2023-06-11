@@ -1,0 +1,77 @@
+version: '3.3'
+
+services:
+
+  db:
+    image: postgres:14.0-alpine
+    volumes:
+      - dating_db:/var/lib/postgresql/data/
+    networks:
+      - dating-network
+    env_file:
+      - ./.env
+
+  rabbitmq:
+    image: rabbitmq:management
+    hostname: rabbitmq
+    restart: always
+    volumes:
+      - rabbit_value:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    env_file:
+      - ./.env
+    networks:
+      - dating-network
+  
+  celery:
+    restart: always
+    image: kostkh/dating_app:v0.1.0
+    command: celery -A dating_app worker -l info
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - dating-network
+  
+  web:
+    image: kostkh/dating_app:v0.1.0
+    restart: always
+    expose:
+      - 8000
+    networks:
+      - dating-network
+    volumes:
+      - static:/app/static/
+      - media:/app/media/
+    depends_on:
+      - db
+      - celery
+    env_file:
+      - ./.env
+
+  nginx:
+    image: nginx:1.25.0
+    networks:
+      - dating-network
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../docs/:/usr/share/nginx/html/docs/
+      - static:/var/html/static/
+      - media:/var/html/media/
+    depends_on:
+      - web
+
+volumes:
+  static:
+  media:
+  dating_db:
+  rabbit_value:
+
+networks:
+  dating-network:
