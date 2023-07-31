@@ -59,7 +59,7 @@ docker-compose exec web python manage.py collectstatic
 /api/clients/create/ - регистрация (POST)
 /api/api-token-auth/ - получение токена (POST)
 ```
-#### Эндпойнты, доступные только авторизованным работникам:
+#### Эндпойнты, доступные только авторизованным пользователям:
 ```
 /api/list/ - получение списка пользователей (GET)
 /api/clients/<id>/match/ - лайк понравившегося пользователя (POST)
